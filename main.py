@@ -1,5 +1,5 @@
 import asyncio
-from sys import stderr
+from sys import stderr, platform
 
 import aiofiles
 from better_proxy.proxy import Proxy
@@ -9,6 +9,11 @@ from loguru import logger
 
 from core import start_farm_account, parse_account_balance
 from utils import loader
+
+if platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    loop = asyncio.ProactorEventLoop()
+    asyncio.set_event_loop(loop)
 
 logger.remove()
 logger.add(stderr, format='<white>{time:HH:mm:ss}</white>'
