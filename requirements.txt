@@ -1,5 +1,5 @@
 curl_cffi>=0.7.1
-eth_account>=0.11.3
+eth_account==0.11.3
 loguru>=0.7.2
 pyuseragents>=1.0.5
 tenacity>=9.0.0
