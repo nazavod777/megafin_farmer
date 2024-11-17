@@ -44,6 +44,9 @@ class Farmer:
                                client: AsyncSession) -> None:
         r: Response = await client.get(url='https://api.megafin.xyz/users/profile')
 
+        if 'title>Access denied | api.megafin.xyz used Cloudflare to restrict access</title>' in r.text:
+            raise ValueError(f'{self.account.address} | CloudFlare')
+
         if not r.ok or not r.json().get('result', ''):
             raise ValueError(f'{self.account.address} | Wrong Response When Profile: {r.text}')
 
@@ -52,7 +55,7 @@ class Farmer:
     async def _login_account(self,
                              client: AsyncSession) -> str:
         sign_text: str = f'megafin.xyz requests you to sign in with your wallet address: {self.account.address}'
-        sign_hash: str = (self.account.sign_message(signable_message=encode_defunct(text=sign_text)).signature.hex())
+        sign_hash: str = self.account.sign_message(signable_message=encode_defunct(text=sign_text)).signature.hex()
 
         r: Response = await client.post(url='https://api.megafin.xyz/auth',
                                         json={
@@ -60,6 +63,9 @@ class Farmer:
                                             'key': sign_text,
                                             'wallet_hash': sign_hash
                                         })
+
+        if 'title>Access denied | api.megafin.xyz used Cloudflare to restrict access</title>' in r.text:
+            raise ValueError(f'{self.account.address} | CloudFlare')
 
         if not r.ok or not r.json().get('result', {}).get('token', ''):
             raise ValueError(f'{self.account.address} | Wrong Response When Auth: {r.text}')
@@ -70,6 +76,9 @@ class Farmer:
     async def _send_connect_request(self,
                                     client: AsyncSession) -> tuple[float, float]:
         r: Response = await client.get(url='https://api.megafin.xyz/users/connect')
+
+        if 'title>Access denied | api.megafin.xyz used Cloudflare to restrict access</title>' in r.text:
+            raise ValueError(f'{self.account.address} | CloudFlare')
 
         if not r.ok or not r.json().get('result', {}).get('balance', ''):
             raise ValueError(f'{self.account.address} | Wrong Response When Pinging: {r.text}')
